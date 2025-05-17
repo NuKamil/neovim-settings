@@ -1,2 +1,2 @@
 require("kamillo")
-print("Hello from lua")
+print("hello from kamillo")
