@@ -77,7 +77,7 @@ _G.packer_plugins = {
   harpoon = {
     loaded = true,
     path = "/home/kamil/.local/share/nvim/site/pack/packer/start/harpoon",
-    url = "https://github.com/thePrimeagen/harpoon"
+    url = "https://github.com/theprimeagen/harpoon"
   },
   neovim = {
     config = { "\27LJ\2\n”\1\0\0\4\0\t\0\r6\0\0\0'\2\1\0B\0\2\0029\0\2\0005\2\4\0005\3\3\0=\3\5\2B\0\2\0016\0\6\0009\0\a\0'\2\b\0B\0\2\1K\0\1\0\26colorscheme rose-pine\bcmd\bvim\vstyles\1\0\1\vstyles\0\1\0\1\17transparency\2\nsetup\14rose-pine\frequire\0" },
