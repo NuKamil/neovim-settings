@@ -1,2 +1,2 @@
 require("kamillo")
-print("hello from kamillo")
+-- print("hello from kamillo")

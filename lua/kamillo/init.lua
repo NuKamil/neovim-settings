@@ -1,2 +1,2 @@
-require("kamillo.remap")
-require("kamillo.set")
+require("kamillo.remap");
+require("kamillo.set");

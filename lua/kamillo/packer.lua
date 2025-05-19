@@ -26,10 +26,26 @@ return require('packer').startup(function(use)
 	  end
   })
 
-  use('nvim-treesitter/nvim-treesitter', {run = ':TSUpdate'})
-  use('nvim-treesitter/playground')
-  use('theprimeagen/harpoon')
-  use('mbbill/undotree')
-  use('tpope/vim-fugitive')
+-- lsp
+use {
+    "folke/lazydev.nvim",
+    ft = "lua",
+    config = function()
+        require("lazydev").setup({
+            library = {
+                { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+            },
+        })
+    end
+}
 
+use("Bilal2453/luvit-meta", { opt = true })
+use('nvim-treesitter/nvim-treesitter', {run = ':TSUpdate'})
+use('nvim-treesitter/playground')
+use('theprimeagen/harpoon')
+use('mbbill/undotree')
+use('tpope/vim-fugitive')
+use('williamboman/mason.nvim')
+use('williamboman/mason-lspconfig.nvim')
+use('neovim/nvim-lspconfig')
 end)

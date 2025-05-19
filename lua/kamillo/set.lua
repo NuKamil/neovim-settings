@@ -1,4 +1,4 @@
-print("hello from set")
+-- print("hello from set")
 -- vim.opt.guicursor = ""
 vim.opt.nu = true;
 vim.opt.relativenumber = true;
