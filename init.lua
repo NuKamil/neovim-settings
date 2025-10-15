@@ -387,6 +387,43 @@ require("lazy").setup({
 			require("luasnip.loaders.from_vscode").lazy_load()
 		end,
 	},
+
+	-- Debugger + UI + auto-instalacja adapterów
+	{
+		"mfussenegger/nvim-dap",
+		dependencies = {
+			"rcarriga/nvim-dap-ui",
+			"nvim-neotest/nvim-nio", -- <── to jest brakujący plugin
+			"theHamsta/nvim-dap-virtual-text",
+			"jay-babu/mason-nvim-dap.nvim",
+		},
+		config = function()
+			local dap, dapui = require("dap"), require("dapui")
+			require("nvim-dap-virtual-text").setup({})
+			dapui.setup()
+			dap.listeners.after.event_initialized["dapui_config"] = function()
+				dapui.open()
+			end
+			dap.listeners.before.event_terminated["dapui_config"] = function()
+				dapui.close()
+			end
+			dap.listeners.before.event_exited["dapui_config"] = function()
+				dapui.close()
+			end
+			vim.keymap.set("n", "<F5>", dap.continue, { desc = "DAP: Start/Continue" })
+			vim.keymap.set("n", "<F10>", dap.step_over, { desc = "DAP: Step Over" })
+			vim.keymap.set("n", "<F11>", dap.step_into, { desc = "DAP: Step Into" })
+			vim.keymap.set("n", "<F12>", dap.step_out, { desc = "DAP: Step Out" })
+			vim.keymap.set("n", "<leader>db", dap.toggle_breakpoint, { desc = "DAP: Toggle Breakpoint" })
+			vim.keymap.set("n", "<leader>du", dapui.toggle, { desc = "DAP: Toggle UI" })
+		end,
+	},
+	{
+		"jay-babu/mason-nvim-dap.nvim",
+		dependencies = { "williamboman/mason.nvim", "mfussenegger/nvim-dap" },
+		opts = { ensure_installed = { "netcoredbg" } },
+	},
+
 	-- Kamil
 	--
 
@@ -1072,5 +1109,161 @@ require("lazy").setup({
 	},
 })
 
+-- === nvim-dap + coreclr (netcoredbg) — Win + Linux ===
+-- == 1) Ciche "exited with 1" ==
+do
+	local orig_notify = vim.notify
+	vim.notify = function(msg, level, opts)
+		if type(msg) == "string" and msg:match("of adapter `coreclr` exited with 1") then
+			level = vim.log.levels.DEBUG -- nie spamuj, wrzuć do DEBUG
+		end
+		return orig_notify(msg, level, opts)
+	end
+end
+
+-- == 2) Zapamiętywanie ścieżki do DLL (per-projekt) ==
+local function _dotnet_store_dir()
+	local dir = vim.fn.stdpath("data") .. "/dap_dotnet"
+	vim.fn.mkdir(dir, "p")
+	return dir
+end
+
+local function _dotnet_project_key()
+	local cwd = vim.fn.getcwd()
+	return (cwd:gsub("[:/\\]", "_"))
+end
+
+local function _dotnet_store_file()
+	return _dotnet_store_dir() .. "/" .. _dotnet_project_key() .. ".txt"
+end
+
+local function read_last_dotnet_dll()
+	local f = _dotnet_store_file()
+	if vim.fn.filereadable(f) == 1 then
+		local lines = vim.fn.readfile(f)
+		if #lines > 0 then
+			return lines[1]
+		end
+	end
+	return nil
+end
+
+local function write_last_dotnet_dll(path)
+	if path and path ~= "" then
+		vim.fn.writefile({ path }, _dotnet_store_file())
+	end
+end
+
+local function default_dotnet_hint()
+	local root = vim.fn.getcwd()
+	-- znajdź najnowszą “własną” DLL (pomijamy systemowe/testowe)
+	local dlls = vim.fn.glob(root .. "/bin/Debug/**/*.dll", true, true)
+	local skip = { "testhost.dll", "vstest", "Microsoft.", "System.", "xunit", "nunit" }
+	local kept = {}
+	for _, p in ipairs(dlls) do
+		local bad = false
+		for _, s in ipairs(skip) do
+			if p:find(s, 1, true) then
+				bad = true
+				break
+			end
+		end
+		if not bad then
+			table.insert(kept, p)
+		end
+	end
+	table.sort(kept, function(a, b)
+		return vim.fn.getftime(a) > vim.fn.getftime(b)
+	end)
+	if kept[1] then
+		return kept[1]
+	end
+	-- fallback — dopisz swój TFM/assembly jeśli trzeba
+	return root .. "/bin/Debug/net8.0/<TwojAsm>.dll"
+end
+
+-- Użyj tego jako `program = prompt_dotnet_dll`
+function prompt_dotnet_dll()
+	local last = read_last_dotnet_dll()
+	local hint = last or default_dotnet_hint()
+	local picked = vim.fn.input("Path to dll: ", hint, "file")
+	if picked and picked ~= "" then
+		write_last_dotnet_dll(picked)
+	end
+	return picked
+end
+
+vim.api.nvim_create_user_command("DotnetClearLastDll", function()
+	local f = _dotnet_store_file()
+	if vim.fn.filereadable(f) == 1 then
+		vim.fn.delete(f)
+		vim.notify("Usunięto zapamiętaną ścieżkę DLL dla tego projektu.")
+	else
+		vim.notify("Brak zapamiętanej ścieżki dla tego projektu.", vim.log.levels.INFO)
+	end
+end, {})
+
+-- == 3) Konfiguracja DAP/adapera ==
+vim.schedule(function()
+	local ok, dap = pcall(require, "dap")
+	if not ok then
+		return
+	end
+
+	local sys = (vim.uv or vim.loop).os_uname().sysname
+	local is_win = sys:match("Windows")
+
+	local data = vim.fn.stdpath("data")
+	local cmd = is_win and (data .. "\\mason\\packages\\netcoredbg\\netcoredbg\\netcoredbg.exe")
+		or (data .. "/mason/bin/netcoredbg")
+
+	if vim.fn.executable(cmd) ~= 1 then
+		vim.notify("Nie znaleziono netcoredbg: " .. cmd .. " (zainstaluj przez :Mason)", vim.log.levels.ERROR)
+		return
+	end
+
+	-- awaryjnie ustaw DOTNET_ROOT, gdyby środowisko go nie miało
+	if vim.fn.getenv("DOTNET_ROOT") == vim.NIL then
+		if is_win then
+			vim.fn.setenv("DOTNET_ROOT", "C:\\Program Files\\dotnet")
+		else
+			-- Zmień jeśli dotnet jest gdzie indziej u Ciebie
+			vim.fn.setenv("DOTNET_ROOT", "/usr/share/dotnet")
+		end
+	end
+
+	dap.adapters.coreclr = {
+		type = "executable",
+		command = cmd,
+		args = { "--interpreter=vscode" },
+	}
+
+	dap.configurations.cs = {
+		{
+			type = "coreclr",
+			name = "Launch: wybierz / pamiętaj DLL",
+			request = "launch",
+			cwd = "${workspaceFolder}",
+			justMyCode = false,
+			program = prompt_dotnet_dll, -- <<< zapamiętuje per-projekt
+		},
+		{
+			type = "coreclr",
+			name = "Attach (pick process)",
+			request = "attach",
+			processId = require("dap.utils").pick_process,
+		},
+	}
+end)
+
+-- == 4) Miłe domknięcie sesji ==
+vim.keymap.set("n", "<leader>dq", function()
+	local dap = require("dap")
+	local okui, dapui = pcall(require, "dapui")
+	dap.disconnect({ terminateDebuggee = true })
+	if okui then
+		dapui.close()
+	end
+end, { desc = "DAP: Disconnect (graceful)" })
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
