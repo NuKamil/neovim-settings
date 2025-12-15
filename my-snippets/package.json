@@ -1,0 +1,12 @@
+
+{
+  "name": "my-nvim-snippets",
+  "contributes": {
+    "snippets": [
+      {
+        "language": "csharp",
+        "path": "./snippets/csharp.json"
+      }
+    ]
+  }
+}

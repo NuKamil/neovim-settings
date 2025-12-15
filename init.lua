@@ -382,9 +382,15 @@ require("lazy").setup({
 
 	{
 		"rafamadriz/friendly-snippets",
+		dependencies = { "L3MON4D3/LuaSnip" },
 		config = function()
-			-- Załaduj snippet’y VSCode (w tym C#)
+			-- friendly-snippets
 			require("luasnip.loaders.from_vscode").lazy_load()
+
+			-- Twoje snippet-y
+			require("luasnip.loaders.from_vscode").lazy_load({
+				paths = { vim.fn.stdpath("config") .. "/my-snippets" },
+			})
 		end,
 	},
 

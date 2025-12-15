@@ -1,0 +1,39 @@
+{
+  "C# class (file-scoped namespace)": {
+    "prefix": ["cls", "class"],
+    "body": [
+      "namespace ${1:MyCompany.MyApp};",
+      "",
+      "public class ${2:${TM_FILENAME_BASE}}",
+      "{",
+      "    $0",
+      "}"
+    ],
+    "description": "Class skeleton with namespace"
+  },
+  "C# interface (file-scoped namespace)": {
+    "prefix": ["iface", "interface"],
+    "body": [
+      "namespace ${1:MyCompany.MyApp};",
+      "",
+      "public interface ${2:I${TM_FILENAME_BASE}}",
+      "{",
+      "    $0",
+      "}"
+    ],
+    "description": "Interface skeleton with namespace"
+  },
+  "C# class (block namespace)": {
+    "prefix": ["clsb", "classb"],
+    "body": [
+      "namespace ${1:MyCompany.MyApp}",
+      "{",
+      "    public class ${2:${TM_FILENAME_BASE}}",
+      "    {",
+      "        $0",
+      "    }",
+      "}"
+    ],
+    "description": "Class skeleton with block namespace"
+  }
+}
