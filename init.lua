@@ -875,48 +875,48 @@ require("lazy").setup({
 		},
 	},
 
-	-- {
-	-- 	"rose-pine/neovim",
-	-- 	name = "rose-pine",
-	-- 	lazy = false,
-	-- 	priority = 1000,
-	-- 	config = function()
-	-- 		require("rose-pine").setup({
-	-- 			-- variant = "moon", -- spróbuj: "main" | "moon" | "dawn"
-	-- 			-- dark_variant = "moon",
-	-- 			disable_background = true,
-	-- 		})
-	--
-	-- 		vim.cmd.colorscheme("rose-pine")
-	--
-	-- 		-- “prime look” = brak tła
-	-- 		vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
-	-- 		vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
-	-- 	end,
-	-- },
-	--
 	{
-		"folke/tokyonight.nvim",
+		"rose-pine/neovim",
+		name = "rose-pine",
+		lazy = false,
 		priority = 1000,
 		config = function()
-			require("tokyonight").setup({
-				style = "moon",
-				transparent = true,
-				styles = {
-					comments = { italic = false },
-					sidebars = "transparent",
-					floats = "transparent",
-				},
+			require("rose-pine").setup({
+				-- variant = "moon", -- spróbuj: "main" | "moon" | "dawn"
+				-- dark_variant = "moon",
+				disable_background = true,
 			})
 
-			vim.cmd.colorscheme("tokyonight")
+			vim.cmd.colorscheme("rose-pine")
 
-			vim.api.nvim_set_hl(0, "SignColumn", { bg = "none" })
-			vim.api.nvim_set_hl(0, "FoldColumn", { bg = "none" })
-			vim.api.nvim_set_hl(0, "LineNr", { bg = "none" })
-			vim.api.nvim_set_hl(0, "CursorLineNr", { bg = "none" })
+			-- “prime look” = brak tła
+			vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
+			vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
 		end,
 	},
+	--
+	-- {
+	-- 	"folke/tokyonight.nvim",
+	-- 	priority = 1000,
+	-- 	config = function()
+	-- 		require("tokyonight").setup({
+	-- 			style = "moon",
+	-- 			transparent = true,
+	-- 			styles = {
+	-- 				comments = { italic = false },
+	-- 				sidebars = "transparent",
+	-- 				floats = "transparent",
+	-- 			},
+	-- 		})
+	--
+	-- 		vim.cmd.colorscheme("tokyonight")
+	--
+	-- 		vim.api.nvim_set_hl(0, "SignColumn", { bg = "none" })
+	-- 		vim.api.nvim_set_hl(0, "FoldColumn", { bg = "none" })
+	-- 		vim.api.nvim_set_hl(0, "LineNr", { bg = "none" })
+	-- 		vim.api.nvim_set_hl(0, "CursorLineNr", { bg = "none" })
+	-- 	end,
+	-- },
 
 	-- { -- You can easily change to a different colorscheme.
 	-- 	-- Change the name of the colorscheme plugin below, and then
