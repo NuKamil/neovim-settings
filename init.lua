@@ -1,3 +1,4 @@
+-- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
 vim.g.mapleader = " "
@@ -207,7 +208,35 @@ require("lazy").setup({
 	--
 	-- This is often very useful to both group configuration, as well as handle
 	-- KAMIL
+	{
+		"nickjvandyke/opencode.nvim",
+		version = "*",
+		config = function()
+			vim.g.opencode_opts = {}
 
+			local oc = require("opencode")
+
+			-- Otwórz / schowaj OpenCode
+			vim.keymap.set({ "n", "t" }, "<leader>oo", function()
+				oc.toggle()
+			end, { desc = "OpenCode: toggle" })
+
+			-- Zapytaj model (na zaznaczeniu / kontekście)
+			vim.keymap.set({ "n", "x" }, "<leader>oa", function()
+				oc.ask("@this: ", { submit = true })
+			end, { desc = "OpenCode: ask @this" })
+
+			-- Wybór akcji / komend
+			vim.keymap.set({ "n", "x" }, "<leader>os", function()
+				oc.select()
+			end, { desc = "OpenCode: select" })
+
+			-- Nowa sesja
+			vim.keymap.set("n", "<leader>on", function()
+				oc.command("session.new")
+			end, { desc = "OpenCode: new session" })
+		end,
+	},
 	-- lazy loading plugins that don't need to be loaded immediately at startup.
 	-- For example, in the following configuration, we use:
 	--  event = 'VimEnter'
@@ -267,6 +296,7 @@ require("lazy").setup({
 				{ "<leader>s", group = "[S]earch" },
 				{ "<leader>t", group = "[T]oggle" },
 				{ "<leader>h", group = "Git [H]unk", mode = { "n", "v" } },
+				{ "<leader>o", group = "[O]penCode" },
 			},
 		},
 	},
@@ -314,7 +344,6 @@ require("lazy").setup({
 			"rcarriga/nvim-dap-ui",
 			"nvim-neotest/nvim-nio", -- <── to jest brakujący plugin
 			"theHamsta/nvim-dap-virtual-text",
-			"jay-babu/mason-nvim-dap.nvim",
 		},
 		config = function()
 			local dap, dapui = require("dap"), require("dapui")
@@ -339,7 +368,7 @@ require("lazy").setup({
 	},
 	{
 		"jay-babu/mason-nvim-dap.nvim",
-		dependencies = { "williamboman/mason.nvim", "mfussenegger/nvim-dap" },
+		dependencies = { "mason-org/mason.nvim", "mfussenegger/nvim-dap" },
 		opts = { ensure_installed = { "netcoredbg" } },
 	},
 
@@ -882,8 +911,8 @@ require("lazy").setup({
 		priority = 1000,
 		config = function()
 			require("rose-pine").setup({
-				-- variant = "moon", -- spróbuj: "main" | "moon" | "dawn"
-				-- dark_variant = "moon",
+				variant = "moon", -- spróbuj: "main" | "moon" | "dawn"
+				dark_variant = "moon",
 				disable_background = true,
 			})
 
@@ -894,7 +923,6 @@ require("lazy").setup({
 			vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
 		end,
 	},
-	--
 	-- {
 	-- 	"folke/tokyonight.nvim",
 	-- 	priority = 1000,
@@ -917,29 +945,6 @@ require("lazy").setup({
 	-- 		vim.api.nvim_set_hl(0, "CursorLineNr", { bg = "none" })
 	-- 	end,
 	-- },
-
-	-- { -- You can easily change to a different colorscheme.
-	-- 	-- Change the name of the colorscheme plugin below, and then
-	-- 	-- change the command in the config to whatever the name of that colorscheme is.
-	-- 	--
-	-- 	-- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-	-- 	"folke/tokyonight.nvim",
-	-- 	priority = 1000, -- Make sure to load this before all the other start plugins.
-	-- 	config = function()
-	-- 		---@diagnostic disable-next-line: missing-fields
-	-- 		require("tokyonight").setup({
-	-- 			styles = {
-	-- 				comments = { italic = false }, -- Disable italics in comments
-	-- 			},
-	-- 		})
-	--
-	-- 		-- Load the colorscheme here.
-	-- 		-- Like many other themes, this one has different styles, and you could load
-	-- 		-- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-	-- 		vim.cmd.colorscheme("tokyonight-moon")
-	-- 	end,
-	-- },
-
 	-- Highlight todo, notes, etc in comments
 	{
 		"folke/todo-comments.nvim",
@@ -1176,8 +1181,30 @@ vim.schedule(function()
 	local is_win = sys:match("Windows")
 
 	local data = vim.fn.stdpath("data")
-	local cmd = is_win and (data .. "\\mason\\packages\\netcoredbg\\netcoredbg\\netcoredbg.exe")
-		or (data .. "/mason/bin/netcoredbg")
+
+	local candidates = is_win
+			and {
+				data .. "\\mason\\packages\\netcoredbg\\netcoredbg\\netcoredbg.exe",
+				data .. "\\mason\\bin\\netcoredbg.cmd",
+				data .. "\\mason\\bin\\netcoredbg",
+			}
+		or {
+			data .. "/mason/bin/netcoredbg",
+			data .. "/mason/packages/netcoredbg/netcoredbg/netcoredbg",
+		}
+
+	local cmd = nil
+	for _, p in ipairs(candidates) do
+		if vim.fn.executable(p) == 1 then
+			cmd = p
+			break
+		end
+	end
+
+	if not cmd then
+		vim.notify("Nie znaleziono netcoredbg (Mason). Sprawdź :Mason i zainstaluj netcoredbg", vim.log.levels.ERROR)
+		return
+	end
 
 	if vim.fn.executable(cmd) ~= 1 then
 		vim.notify("Nie znaleziono netcoredbg: " .. cmd .. " (zainstaluj przez :Mason)", vim.log.levels.ERROR)
@@ -1295,7 +1322,7 @@ do
 		end
 
 		ls.add_snippets("cs", {
-			s("clsk", {
+			s("cls", {
 				t("namespace "),
 				f(function()
 					return ns()
@@ -1309,7 +1336,7 @@ do
 				i(0),
 				t({ "", "}" }),
 			}),
-			s("ifacek", {
+			s("iface", {
 				t("namespace "),
 				f(function()
 					return ns()
