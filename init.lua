@@ -1009,6 +1009,13 @@ require("lazy").setup({
 			--  Check out: https://github.com/echasnovski/mini.nvim
 		end,
 	},
+	-- Treesitter: wybór kompilatora na Windows
+	(function()
+		local ok, ts_install = pcall(require, "nvim-treesitter.install")
+		if ok then
+			ts_install.compilers = { "gcc", "cl", "clang" }
+		end
+	end)(),
 	{ -- Highlight, edit, and navigate code
 		"nvim-treesitter/nvim-treesitter",
 		build = ":TSUpdate",
@@ -1029,7 +1036,7 @@ require("lazy").setup({
 				"vimdoc",
 			},
 			-- Autoinstall languages that are not installed
-			auto_install = true,
+			auto_install = false,
 			highlight = {
 				enable = true,
 				-- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
