@@ -689,78 +689,93 @@ require("lazy").setup({
 			--  So, we create new capabilities with blink.cmp, and then broadcast that to the servers.
 			local capabilities = require("blink.cmp").get_lsp_capabilities()
 
-			-- Enable the following language servers
-			--  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
-			--
-			--  Add any additional override configuration in the following tables. Available keys are:
-			--  - cmd (table): Override the default command used to start the server
-			--  - filetypes (table): Override the default list of associated filetypes for the server
-			--  - capabilities (table): Override fields in capabilities. Can be used to disable certain LSP features.
-			--  - settings (table): Override the default settings passed when initializing the server.
-			--        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
-			local servers = {
-				-- clangd = {},
-				-- gopls = {},
-				-- pyright = {},
-				-- rust_analyzer = {},
-				-- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
-				--
-				-- Some languages (like typescript) have entire language plugins that can be useful:
-				--    https://github.com/pmizio/typescript-tools.nvim
-				--
-				-- But for many setups, the LSP (`ts_ls`) will work just fine
-				-- ts_ls = {},
-				--
+			local vue_language_server_path = vim.fn.stdpath("data")
+				.. "/mason/packages/vue-language-server/node_modules/@vue/language-server"
 
-				lua_ls = {
-					-- cmd = { ... },
-					-- filetypes = { ... },
-					-- capabilities = {},
-					settings = {
-						Lua = {
-							completion = {
-								callSnippet = "Replace",
-							},
-							-- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
-							-- diagnostics = { disable = { 'missing-fields' } },
+			local vue_plugin = {
+				name = "@vue/typescript-plugin",
+				location = vue_language_server_path,
+				languages = { "vue" },
+				configNamespace = "typescript",
+			}
+
+			local ensure_installed = {
+				"stylua",
+				"lua_ls",
+				"omnisharp",
+				"tailwindcss",
+				"vue-language-server",
+				"vtsls",
+			}
+
+			require("mason-tool-installer").setup({
+				ensure_installed = ensure_installed,
+			})
+
+			require("mason-lspconfig").setup({
+				ensure_installed = {},
+				automatic_enable = false,
+			})
+
+			vim.lsp.config("lua_ls", {
+				capabilities = capabilities,
+				settings = {
+					Lua = {
+						completion = {
+							callSnippet = "Replace",
 						},
 					},
 				},
-			}
-
-			-- Ensure the servers and tools above are installed
-			--
-			-- To check the current status of installed tools and/or manually install
-			-- other tools, you can run
-			--    :Mason
-			--
-			-- You can press `g?` for help in this menu.
-			--
-			-- `mason` had to be setup earlier: to configure its options see the
-			-- `dependencies` table for `nvim-lspconfig` above.
-			--
-			-- You can add other tools here that you want Mason to install
-			-- for you, so that they are available from within Neovim.
-			local ensure_installed = vim.tbl_keys(servers or {})
-			vim.list_extend(ensure_installed, {
-				"stylua", -- Used to format Lua code
 			})
-			require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
-			require("mason-lspconfig").setup({
-				ensure_installed = {}, -- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)
-				automatic_installation = false,
-				handlers = {
-					function(server_name)
-						local server = servers[server_name] or {}
-						-- This handles overriding only values explicitly passed
-						-- by the server configuration above. Useful when disabling
-						-- certain features of an LSP (for example, turning off formatting for ts_ls)
-						server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
-						require("lspconfig")[server_name].setup(server)
-					end,
+			vim.lsp.config("vtsls", {
+				capabilities = capabilities,
+				settings = {
+					vtsls = {
+						tsserver = {
+							globalPlugins = {
+								vue_plugin,
+							},
+						},
+					},
+				},
+				filetypes = {
+					"javascript",
+					"javascriptreact",
+					"typescript",
+					"typescriptreact",
+					"vue",
 				},
 			})
+
+			vim.lsp.config("vue_ls", {
+				capabilities = capabilities,
+			})
+
+			vim.lsp.config("tailwindcss", {
+				capabilities = capabilities,
+			})
+
+			vim.lsp.config("omnisharp", {
+				capabilities = capabilities,
+				settings = {
+					FormattingOptions = {
+						EnableEditorConfigSupport = true,
+					},
+					MsBuild = {},
+					RenameOptions = {},
+					RoslynExtensionsOptions = {},
+					Sdk = {
+						IncludePrereleases = true,
+					},
+				},
+			})
+
+			vim.lsp.enable("lua_ls")
+			vim.lsp.enable("vtsls")
+			vim.lsp.enable("vue_ls")
+			vim.lsp.enable("tailwindcss")
+			vim.lsp.enable("omnisharp")
 		end,
 	},
 
@@ -789,18 +804,22 @@ require("lazy").setup({
 					return nil
 				else
 					return {
-						timeout_ms = 500,
+						timeout_ms = 3000,
 						lsp_format = "fallback",
 					}
 				end
 			end,
 			formatters_by_ft = {
 				lua = { "stylua" },
-				-- Conform can also run multiple formatters sequentially
-				-- python = { "isort", "black" },
-				--
-				-- You can use 'stop_after_first' to run the first available formatter from the list
-				-- javascript = { "prettierd", "prettier", stop_after_first = true },
+				javascript = { "prettier" },
+				typescript = { "prettier" },
+				javascriptreact = { "prettier" },
+				typescriptreact = { "prettier" },
+				vue = { "prettier" },
+				json = { "prettier" },
+				css = { "prettier" },
+				scss = { "prettier" },
+				html = { "prettier" },
 			},
 		},
 	},
