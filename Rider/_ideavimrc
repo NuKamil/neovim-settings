@@ -1,0 +1,102 @@
+" ============================================================
+" IdeaVim config for Rider
+" Kamil - small Kickstart-like core
+" ============================================================
+
+" Leader
+let mapleader = " "
+let maplocalleader = " "
+
+
+" ============================================================
+" Basic editor behavior
+" ============================================================
+
+set number
+set relativenumber
+
+set ignorecase
+set smartcase
+set incsearch
+
+set scrolloff=10
+
+" System clipboard integration
+" y / yy / visual y should go to Windows clipboard
+" p should paste using IDE-friendly behavior
+set clipboard=unnamedplus,ideaput
+
+" Highlight yanked/copied text
+set highlightedyank
+let g:highlightedyank_highlight_duration = 700
+
+
+" ============================================================
+" My custom visual line move
+" Like in your Neovim config:
+" Visual J = move selected block down
+" Visual K = move selected block up
+" ============================================================
+
+vnoremap J :m '>+1<CR>gv=gv
+vnoremap K :m '<-2<CR>gv=gv
+
+
+" ============================================================
+" Code actions - Kickstart-like gr... mappings
+" ============================================================
+
+" Rename symbol
+nmap grn <Action>(RenameElement)
+
+" Code action / quick fix / intention actions
+nmap gra <Action>(ShowIntentionActions)
+
+" Go to definition/declaration
+nmap grd <Action>(GotoDeclaration)
+
+" Find usages / references
+nmap grr <Action>(FindUsages)
+
+" Go to implementation
+nmap gri <Action>(GotoImplementation)
+
+" Go to type declaration
+nmap grt <Action>(GotoTypeDeclaration)
+
+
+" ============================================================
+" Search - Kickstart-like <leader>s...
+" ============================================================
+
+" Search files
+nmap <leader>sf <Action>(GotoFile)
+
+" Search text in project
+nmap <leader>sg <Action>(FindInPath)
+
+" Recent files
+nmap <leader>s. <Action>(RecentFiles)
+
+" Search IDE actions / commands
+nmap <leader>sc <Action>(SearchEverywhere)
+
+
+" ============================================================
+" Formatting
+" ============================================================
+
+" Format current file
+nmap <leader>f <Action>(ReformatCode)
+
+
+" ============================================================
+" Diagnostics / errors
+" ============================================================
+
+" Show error description under cursor
+nmap <leader>e <Action>(ShowErrorDescription)
+
+" Next / previous error
+nmap ]d <Action>(GotoNextError)
+nmap [d <Action>(GotoPreviousError)
