@@ -904,7 +904,7 @@ require("lazy").setup({
 
 	{ -- Colorscheme is provided in lua/custom/plugins/colors.lua
 		"folke/tokyonight.nvim",
-		enabled = false,
+		enabled = true,
 	},
 
 	-- Highlight todo, notes, etc in comments

@@ -1,7 +1,7 @@
 return {
 	{
 		"nickjvandyke/opencode.nvim",
-		version = "*",
+		tag = "v0.10.2",
 		config = function()
 			vim.g.opencode_opts = {}
 			vim.o.autoread = true
