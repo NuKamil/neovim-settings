@@ -682,7 +682,19 @@ require("lazy").setup({
 						},
 					},
 				},
-				vue_ls = {},
+				vue_ls = {
+					cmd = function(dispatchers, config)
+						local root = (config and config.root_dir) or vim.fn.getcwd()
+						local tsdk = vim.fs.joinpath(root, "node_modules", "typescript", "lib")
+						local cmd = { "vue-language-server", "--stdio" }
+
+						if vim.fn.isdirectory(tsdk) == 1 then
+							table.insert(cmd, "--tsdk=" .. tsdk)
+						end
+
+						return vim.lsp.rpc.start(cmd, dispatchers)
+					end,
+				},
 				omnisharp = {
 					settings = {
 						FormattingOptions = {
