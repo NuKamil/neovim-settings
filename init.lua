@@ -1082,8 +1082,9 @@ require("lazy").setup({
 	},
 })
 
--- Choose the startup colorscheme here. Installed alternatives: tokyonight-moon, rose-pine.
-vim.cmd.colorscheme("flatui")
+-- Choose the startup colorscheme here. Installed alternatives: tokyonight-moon, rose-pine, one_dark_devmentors.
+-- vim.cmd.colorscheme("flatui")
+vim.cmd.colorscheme("one_dark_devmentors")
 -- vim.cmd.colorscheme("tokyonight-moon")
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
