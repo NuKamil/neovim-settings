@@ -1,5 +1,5 @@
 -- One Dark DevMentors (Rider), adapted for Neovim.
--- Put this file at ~/.config/nvim/colors/one_dark_devmentors.lua and run :colorscheme one_dark_devmentors.
+-- Put this file at ~/.config/nvim/colors/one_dark_devmentors_rider.lua and run :colorscheme one_dark_devmentors_rider.
 
 vim.o.termguicolors = true
 vim.o.background = 'dark'
@@ -7,7 +7,7 @@ vim.cmd.highlight('clear')
 if vim.fn.exists('syntax_on') == 1 then
   vim.cmd('syntax reset')
 end
-vim.g.colors_name = 'one_dark_devmentors'
+vim.g.colors_name = 'one_dark_devmentors_rider'
 
 local c = {
   bg = '#282C34',
@@ -30,9 +30,9 @@ local c = {
 
 local set = vim.api.nvim_set_hl
 local ui = {
-  Normal = { fg = c.fg },
-  NormalNC = { fg = c.fg },
-  NormalFloat = { fg = c.fg },
+  Normal = { fg = c.fg, bg = c.bg },
+  NormalNC = { fg = c.fg, bg = c.bg },
+  NormalFloat = { fg = c.fg, bg = c.bg },
   FloatBorder = { fg = c.gutter },
   FloatTitle = { fg = c.blue, bold = true },
   Cursor = { fg = c.bg, bg = c.cursor },
