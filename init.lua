@@ -914,11 +914,6 @@ require("lazy").setup({
 		},
 	},
 
-	{ -- Colorscheme is provided in lua/custom/plugins/colors.lua
-		"folke/tokyonight.nvim",
-		enabled = true,
-	},
-
 	-- Highlight todo, notes, etc in comments
 	{
 		"folke/todo-comments.nvim",
@@ -1087,5 +1082,8 @@ require("lazy").setup({
 	},
 })
 
+-- Choose the startup colorscheme here. Installed alternatives: tokyonight-moon, rose-pine.
+vim.cmd.colorscheme("flatui")
+-- vim.cmd.colorscheme("tokyonight-moon")
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
