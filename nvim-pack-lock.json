@@ -55,6 +55,10 @@
       "src": "https://github.com/nvim-treesitter/nvim-treesitter",
       "version": "'main'"
     },
+    "nvim-ts-autotag": {
+      "rev": "d7220b55e16ed3c04e88086256def5d282429493",
+      "src": "https://github.com/windwp/nvim-ts-autotag"
+    },
     "plenary.nvim": {
       "rev": "74b06c6c75e4eeb3108ec01852001636d85a932b",
       "src": "https://github.com/nvim-lua/plenary.nvim"
