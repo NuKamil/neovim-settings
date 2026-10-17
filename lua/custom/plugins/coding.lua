@@ -110,6 +110,52 @@ return {
 					i(0),
 					t({ "", "}" }),
 				}),
+
+				s("sclsK", {
+					t("namespace "),
+					f(function()
+						return ns()
+					end, {}),
+					t({ ";", "", "" }),
+					t("public sealed class "),
+					f(function()
+						return class_name()
+					end, {}),
+					t({ "", "{", "    " }),
+					i(0),
+					t({ "", "}" }),
+				}),
+
+				s("recK", {
+					t("namespace "),
+					f(function()
+						return ns()
+					end, {}),
+					t({ ";", "", "" }),
+					t("public record "),
+					f(function()
+						return class_name()
+					end, {}),
+					t({ "", "{", "    " }),
+					i(0),
+					t({ "", "}" }),
+				}),
+
+				s("srecK", {
+					t("namespace "),
+					f(function()
+						return ns()
+					end, {}),
+					t({ ";", "", "" }),
+					t("public sealed record "),
+					f(function()
+						return class_name()
+					end, {}),
+					t({ "", "{", "    " }),
+					i(0),
+					t({ "", "}" }),
+				}),
+
 				s("ifaceK", {
 					t("namespace "),
 					f(function()
