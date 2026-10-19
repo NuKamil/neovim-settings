@@ -1,1 +1,1 @@
-vim.cmd.colorscheme('one_dark_devmentors')
+vim.cmd.colorscheme 'devmentors_html'
