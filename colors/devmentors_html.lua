@@ -3,11 +3,14 @@
 
 vim.o.termguicolors = true
 vim.o.background = 'dark'
-vim.cmd.highlight('clear')
-if vim.fn.exists('syntax_on') == 1 then
-  vim.cmd('syntax reset')
-end
+vim.cmd.highlight 'clear'
+if vim.fn.exists 'syntax_on' == 1 then vim.cmd 'syntax reset' end
 vim.g.colors_name = 'devmentors_html'
+
+-- Keep the main editor transparent; floating windows need their own solid surface.
+vim.o.winblend = 0
+vim.o.pumblend = 0
+if vim.fn.exists '+winborder' == 1 then vim.o.winborder = 'rounded' end
 
 local c = {
   v2_method = '#00FFB3',
@@ -33,15 +36,22 @@ local c = {
   cyan = '#56B6C2',
   cursor = '#528BFF',
   error = '#F44747',
+  float = '#303744',
+  float_border = '#4B5568',
+  border = '#73839B',
+  inactive = '#222731',
+  selected = '#46536A',
 }
 
 local set = vim.api.nvim_set_hl
 local ui = {
   Normal = { fg = c.fg },
   NormalNC = { fg = c.fg },
-  NormalFloat = { fg = c.fg },
-  FloatBorder = { fg = c.gutter },
-  FloatTitle = { fg = c.blue, bold = true },
+  NormalFloat = { fg = c.v2_variable, bg = c.float, blend = 0 },
+  FloatBorder = { fg = c.float_border, bg = c.float, blend = 0 },
+  FloatTitle = { fg = c.v2_variable, bg = c.float, bold = true },
+  MasonNormal = { fg = c.v2_variable, bg = c.float, blend = 0 },
+  MasonMuted = { fg = '#A2ACBD' },
   Cursor = { fg = c.bg, bg = c.cursor },
   CursorLine = { bg = c.line },
   CursorColumn = { bg = c.line },
@@ -51,22 +61,23 @@ local ui = {
   SignColumn = { fg = c.gutter },
   FoldColumn = { fg = c.gutter },
   Folded = { fg = c.fg_soft, bg = c.line },
-  Visual = { bg = c.line },
+  Visual = { bg = c.selected },
   Search = { fg = c.bg, bg = c.yellow },
   CurSearch = { fg = c.bg, bg = c.orange },
   IncSearch = { fg = c.bg, bg = c.orange },
   MatchParen = { fg = c.orange, bg = c.line, bold = true },
-  StatusLine = { fg = c.fg, bg = c.line },
-  StatusLineNC = { fg = c.gutter, bg = c.line },
-  WinSeparator = { fg = c.line },
-  VertSplit = { fg = c.line },
-  Pmenu = { fg = c.fg, bg = c.line },
-  PmenuSel = { fg = c.bg, bg = c.blue },
-  PmenuSbar = { bg = c.line },
-  PmenuThumb = { bg = c.gutter },
-  TabLine = { fg = c.gutter },
-  TabLineSel = { fg = c.fg, bg = c.line, bold = true },
-  TabLineFill = {},
+  StatusLine = { fg = c.v2_variable, bg = c.float },
+  StatusLineNC = { fg = '#A2ACBD', bg = c.inactive },
+  WinSeparator = { fg = c.border },
+  VertSplit = { fg = c.border },
+  Pmenu = { fg = c.v2_variable, bg = c.float, blend = 0 },
+  PmenuSel = { fg = '#FFFFFF', bg = c.selected },
+  PmenuBorder = { fg = c.float_border, bg = c.float },
+  PmenuSbar = { bg = c.float },
+  PmenuThumb = { bg = c.border },
+  TabLine = { fg = c.fg, bg = c.inactive },
+  TabLineSel = { fg = '#FFFFFF', bg = c.selected, bold = true },
+  TabLineFill = { bg = c.inactive },
   Directory = { fg = c.blue },
   Title = { fg = c.blue, bold = true },
   NonText = { fg = c.gutter },
@@ -256,7 +267,7 @@ local diagnostics = {
   DiffText = { fg = c.blue_bright, bg = c.line },
 }
 
-for _, groups in ipairs({ ui, syntax, treesitter, semantic, rider_csharp, diagnostics }) do
+for _, groups in ipairs { ui, syntax, treesitter, semantic, rider_csharp, diagnostics } do
   for name, style in pairs(groups) do
     set(0, name, style)
   end
