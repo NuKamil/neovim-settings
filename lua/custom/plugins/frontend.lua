@@ -32,6 +32,13 @@ vim.lsp.config('vtsls', {
             languages = { 'vue' },
             configNamespace = 'typescript',
           },
+          {
+            -- o365dev: rozwiązuje importy z kropkami (./legacy.X.ts → ./legacy/X.ts), lib/plik.ts, SiteSetup.
+            -- Konfiguracja (sitesetupDir itd.) przychodzi z tsconfig.json biblioteki/apki.
+            name = '@o365dev/tsconfig-plugin',
+            location = 'C:/Users/kamil.nurkowski/O365-Workspace',
+            enableForWorkspaceTypeScriptVersions = true,
+          },
         },
       },
     },
